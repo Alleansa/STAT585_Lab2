@@ -10,9 +10,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-library(ggplot2)
 library(sf)
 library(ggspatial)
+library(tidyverse)
 ```
 
 plot the original plot
@@ -30,7 +30,36 @@ p <- ggplot() +
 
 add city label
 ```{r}
+p + geom_sf_text(data = read_sf("data/ME-GIS/Cities.shp"), aes(label=Name)) + annotation_scale() + annotation_north_arrow(which_north = "true", location = "true", style = north_arrow_nautical())
+```
 
+Australia shapefile
+
+```{r}
+ozbig <- read_sf("data/gadm36_AUS_shp/gadm36_AUS_1.shp")
+oz_st <- maptools::thinnedSpatialPoly(
+  as(ozbig, "Spatial"), tolerance = 0.1, 
+  minarea = 0.001, topologyPreserve = TRUE)
+oz <- st_as_sf(oz_st)
+View(oz)
+
+```
+
+```{r}
+helper <- function(d){
+  group_num <- length(d)
+  df <- NULL
+  for(i in c(1:group_num)){
+    df <- rbind(df, cbind(d[[i]][[1]],
+                          rep(i,nrow(d[[i]][[1]])),
+                          seq(1:nrow(d[[i]][[1]]))))
+                          
+  }
+  colnames(df) <-c('long','lat','group','order')
+  return(as.data.frame(df))
+}
+
+purrr::map(oz$geometry, .f=helper)
 ```
 
 
