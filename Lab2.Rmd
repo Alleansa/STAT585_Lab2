@@ -1,0 +1,17 @@
+---
+title: "STAT585_Lab2"
+author: "Xin Zhang"
+date: "2/20/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(sf)
+```
+
+
