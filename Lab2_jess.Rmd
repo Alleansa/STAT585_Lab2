@@ -18,13 +18,13 @@ library(ggspatial)
 plot the original plot
 ```{r}
 p <- ggplot() +
-  geom_sf(data = read_sf("data/ME-GIS/Coastline2.shp"), 
+  geom_sf(data = read_sf("Coastline2.shp"), 
           colour="grey10", fill="grey90") +
-  geom_sf(data = read_sf("data/ME-GIS/Rivers19.shp"), 
+  geom_sf(data = read_sf("Rivers19.shp"), 
           colour="steelblue", size=0.3) +
-  geom_sf(data = read_sf("data/ME-GIS/PrimaryRoads.shp"), 
+  geom_sf(data = read_sf("PrimaryRoads.shp"), 
           size = 0.7, colour="grey30") +
-  geom_sf(data = read_sf("data/ME-GIS/Cities.shp")) +
+  geom_sf(data = read_sf("Cities.shp")) +
   theme_bw()
 ```
 
