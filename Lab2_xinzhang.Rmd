@@ -41,8 +41,6 @@ oz_st <- maptools::thinnedSpatialPoly(
   as(ozbig, "Spatial"), tolerance = 0.1, 
   minarea = 0.001, topologyPreserve = TRUE)
 oz <- st_as_sf(oz_st)
-View(oz)
-
 ```
 
 ```{r}
@@ -58,8 +56,19 @@ helper <- function(d){
   colnames(df) <-c('long','lat','group','order')
   return(as.data.frame(df))
 }
-
-purrr::map(oz$geometry, .f=helper)
+library(plyr)
+library(ggplot2)
+purrr::map(oz$geometry, .f=helper) -> res
+purrr::map(res,.f=function(d) ggplot(d)+geom_path(aes(x=long,y=lat,group=group)))
 ```
+
+```{r}
+p = ggplot()
+for(i in c(1:length(res))){
+  p <- p + geom_path(data=res[[i]],aes(x=long,y=lat,group=group))
+}
+p
+```
+
 
 
