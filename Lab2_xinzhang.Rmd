@@ -17,20 +17,20 @@ library(tidyverse)
 
 plot the original plot
 ```{r}
-p <- ggplot() +
-  geom_sf(data = read_sf("data/ME-GIS/Coastline2.shp"), 
-          colour="grey10", fill="grey90") +
-  geom_sf(data = read_sf("data/ME-GIS/Rivers19.shp"), 
-          colour="steelblue", size=0.3) +
-  geom_sf(data = read_sf("data/ME-GIS/PrimaryRoads.shp"), 
-          size = 0.7, colour="grey30") +
-  geom_sf(data = read_sf("data/ME-GIS/Cities.shp")) +
-  theme_bw()
+# p <- ggplot() +
+#   geom_sf(data = read_sf("data/ME-GIS/Coastline2.shp"), 
+#           colour="grey10", fill="grey90") +
+#   geom_sf(data = read_sf("data/ME-GIS/Rivers19.shp"), 
+#           colour="steelblue", size=0.3) +
+#   geom_sf(data = read_sf("data/ME-GIS/PrimaryRoads.shp"), 
+#           size = 0.7, colour="grey30") +
+#   geom_sf(data = read_sf("data/ME-GIS/Cities.shp")) +
+#   theme_bw()
 ```
 
 add city label
 ```{r}
-p + geom_sf_text(data = read_sf("data/ME-GIS/Cities.shp"), aes(label=Name)) + annotation_scale() + annotation_north_arrow(which_north = "true", location = "true", style = north_arrow_nautical())
+#p + geom_sf_text(data = read_sf("data/ME-GIS/Cities.shp"), aes(label=Name)) + annotation_scale() + annotation_north_arrow(which_north = "true", location = "true", style = north_arrow_nautical())
 ```
 
 Australia shapefile
@@ -45,30 +45,29 @@ oz <- st_as_sf(oz_st)
 
 ```{r}
 helper <- function(d){
-  group_num <- length(d)
-  df <- NULL
-  for(i in c(1:group_num)){
-    df <- rbind(df, cbind(d[[i]][[1]],
-                          rep(i,nrow(d[[i]][[1]])),
-                          seq(1:nrow(d[[i]][[1]]))))
-                          
-  }
-  colnames(df) <-c('long','lat','group','order')
-  return(as.data.frame(df))
+  d <- unlist(d,recursive = FALSE)
+  d <- add_layer(d)
+  return(d)
 }
+add_layer <- function(d){
+  ll <- unlist(lapply(d,nrow))
+  d <- do.call(rbind,d)
+  d <- cbind(d,rep(c(1:length(ll)),time=ll))
+  return(d)
+}
+
 library(plyr)
 library(ggplot2)
 purrr::map(oz$geometry, .f=helper) -> res
-purrr::map(res,.f=function(d) ggplot(d)+geom_path(aes(x=long,y=lat,group=group)))
+
+res <- add_layer(res)
+colnames(res) <- c('long','lat','group','geo')
+res <- as.data.frame(res)
+
+ggplot(data=res)+geom_path(aes(x=long,y=lat,group=paste(res$geo,res$group,sep='.')))
 ```
 
-```{r}
-p = ggplot()
-for(i in c(1:length(res))){
-  p <- p + geom_path(data=res[[i]],aes(x=long,y=lat,group=group))
-}
-p
-```
+
 
 
 
