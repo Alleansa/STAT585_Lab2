@@ -46,8 +46,14 @@ oz <- st_as_sf(oz_st)
 ```{r}
 helper <- function(d){
   d <- unlist(d,recursive = FALSE)
+  d <- purrr::map(d,.f=add_order)
   d <- add_layer(d)
   return(d)
+}
+
+add_order <- function(d){
+  l <- nrow(d)
+  return(cbind(d,seq(1,l,by=1)))
 }
 add_layer <- function(d){
   ll <- unlist(lapply(d,nrow))
@@ -61,7 +67,7 @@ library(ggplot2)
 purrr::map(oz$geometry, .f=helper) -> res
 
 res <- add_layer(res)
-colnames(res) <- c('long','lat','group','geo')
+colnames(res) <- c('long','lat','order','group','geo')
 res <- as.data.frame(res)
 
 ggplot(data=res)+geom_path(aes(x=long,y=lat,group=paste(res$geo,res$group,sep='.')))
