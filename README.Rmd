@@ -32,7 +32,10 @@ p <- ggplot() +
 2. Add city labels for Frodo and Sam
 
 ```{r}
-p + geom_sf_text(data = read_sf("Cities.shp"), aes(label=Name)) + annotation_scale() + annotation_north_arrow(which_north = "true", location = "true", style = north_arrow_nautical())
+p + geom_sf_text(data = read_sf("data/ME-GIS/Cities.shp"), 
+                 aes(label=Name), size=3, colour = "black") + annotation_scale() + 
+  annotation_north_arrow(which_north = "true", location = "true", 
+                         style = north_arrow_nautical())
 ```
 
 3. Australia shapefile
@@ -43,7 +46,6 @@ oz_st <- maptools::thinnedSpatialPoly(
   as(ozbig, "Spatial"), tolerance = 0.1, 
   minarea = 0.001, topologyPreserve = TRUE)
 oz <- st_as_sf(oz_st)
-
 ```
 
 
@@ -78,7 +80,10 @@ res <- add_layer(res)
 colnames(res) <- c('long','lat','order','group','geo')
 res <- as.data.frame(res)
 
-ggplot(data=res)+geom_path(aes(x=long,y=lat,group=paste(res$geo,res$group,sep='.')))
+ggplot(data=res)+
+  geom_path(aes(x=long,y=lat,
+                group=paste(res$geo,res$group,sep='.'))) + 
+  theme_bw()
 ```
 
 5. Now we plot Canada
@@ -98,7 +103,10 @@ colnames(res) <- c('long','lat','order','group','geo')
 
 res <- as.data.frame(res)
 
-ggplot(data=res)+geom_path(aes(x=long,y=lat,group=paste(res$geo,res$group,sep='.')))
+ggplot(data=res)+
+  geom_path(aes(x=long,y=lat,
+                group=paste(res$geo,res$group,sep='.')))+
+  theme_bw()
 ```
 
 
