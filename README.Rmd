@@ -1,0 +1,111 @@
+---
+title: "STAT585_Lab2"
+author: "Earl Hur, Jessica Kueon, Virginia Nichols, Xin Zhang"
+date: "2/20/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(sf)
+library(ggspatial)
+library(tidyverse)
+```
+
+1. Plot the original map of the Middle Earth
+
+```{r}
+p <- ggplot() +
+  geom_sf(data = read_sf("data/ME-GIS/Coastline2.shp"), 
+          colour="grey10", fill="grey90") +
+  geom_sf(data = read_sf("data/ME-GIS/Rivers19.shp"), 
+          colour="steelblue", size=0.3) +
+  geom_sf(data = read_sf("data/ME-GIS/PrimaryRoads.shp"), 
+          size = 0.7, colour="grey30") +
+  geom_sf(data = read_sf("data/ME-GIS/Cities.shp")) +
+  theme_bw()
+```
+
+2. Add city labels for Frodo and Sam
+
+```{r}
+p + geom_sf_text(data = read_sf("Cities.shp"), aes(label=Name)) + annotation_scale() + annotation_north_arrow(which_north = "true", location = "true", style = north_arrow_nautical())
+```
+
+3. Australia shapefile
+
+```{r}
+ozbig <- read_sf("data/gadm36_AUS_shp/gadm36_AUS_1.shp")
+oz_st <- maptools::thinnedSpatialPoly(
+  as(ozbig, "Spatial"), tolerance = 0.1, 
+  minarea = 0.001, topologyPreserve = TRUE)
+oz <- st_as_sf(oz_st)
+
+```
+
+
+
+4. Write a helper function to plot Australia
+
+```{r}
+helper <- function(d){
+  d <- unlist(d,recursive = FALSE)
+  d <- purrr::map(d,.f=add_order)
+  d <- add_layer(d)
+  return(d)
+}
+
+
+add_order <- function(d){
+  l <- nrow(d)
+  return(cbind(d,seq(1,l,by=1)))
+}
+add_layer <- function(d){
+  ll <- unlist(lapply(d,nrow))
+  d <- do.call(rbind,d)
+  d <- cbind(d,rep(c(1:length(ll)),time=ll))
+  return(d)
+}
+
+library(plyr)
+library(ggplot2)
+purrr::map(oz$geometry, .f=helper) -> res
+
+res <- add_layer(res)
+colnames(res) <- c('long','lat','order','group','geo')
+res <- as.data.frame(res)
+
+ggplot(data=res)+geom_path(aes(x=long,y=lat,group=paste(res$geo,res$group,sep='.')))
+```
+
+5. Now we plot Canada
+
+```{r}
+CANbig <- read_sf("data/gadm36_CAN_shp/gadm36_CAN_0.shp")
+
+CAN_st <- maptools::thinnedSpatialPoly(
+  as(CANbig, "Spatial"), tolerance = 0.1, 
+  minarea = .001, topologyPreserve = TRUE)
+CAN <- st_as_sf(CAN_st)
+
+purrr::map(CAN$geometry, .f=helper) -> res
+
+res <- add_layer(res)
+colnames(res) <- c('long','lat','order','group','geo')
+
+res <- as.data.frame(res)
+
+ggplot(data=res)+geom_path(aes(x=long,y=lat,group=paste(res$geo,res$group,sep='.')))
+```
+
+
+
+
+
+
+
+
+
