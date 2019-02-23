@@ -73,6 +73,29 @@ res <- as.data.frame(res)
 ggplot(data=res)+geom_path(aes(x=long,y=lat,group=paste(res$geo,res$group,sep='.')))
 ```
 
+Canada
+```{r}
+CANbig <- read_sf("data/gadm36_CAN_shp/gadm36_CAN_0.shp")
+
+CAN_st <- maptools::thinnedSpatialPoly(
+  as(CANbig, "Spatial"), tolerance = 0.1, 
+  minarea = .001, topologyPreserve = TRUE)
+CAN <- st_as_sf(CAN_st)
+
+purrr::map(CAN$geometry, .f=helper) -> res
+
+res <- add_layer(res)
+colnames(res) <- c('long','lat','order','group','geo')
+
+res <- as.data.frame(res)
+
+ggplot(data=res)+geom_path(aes(x=long,y=lat,group=paste(res$geo,res$group,sep='.')))
+```
+
+
+
+
+
 
 
 
